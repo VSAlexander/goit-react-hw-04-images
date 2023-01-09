@@ -1,0 +1,12 @@
+.galleryItem {
+  flex-basis: calc((100% - 3 * 10px) / 4);
+  display: flex;
+}
+
+.galleryItem img {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  flex-grow: 1;
+}

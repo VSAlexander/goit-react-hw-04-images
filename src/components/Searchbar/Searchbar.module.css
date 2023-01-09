@@ -1,0 +1,45 @@
+.searchWrapper {
+  top: 0;
+  left: 0;
+  position: sticky;
+
+  min-height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: #4653aa;
+}
+.form {
+  display: flex;
+  outline-style: white;
+
+  background-color: white;
+}
+
+.button {
+  width: 50px;
+  border-width: 0;
+  padding: 0;
+
+  background-color: transparent;
+  color: inherit;
+
+  text-align: center;
+  cursor: pointer;
+}
+
+.input {
+  min-height: 40px;
+  min-width: 350px;
+  flex: 1;
+
+  border-width: 0;
+
+  font-size: 18px;
+  color: #767676;
+}
+
+.input:focus {
+  outline-style: none;
+}
