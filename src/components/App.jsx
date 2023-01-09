@@ -28,7 +28,7 @@ export class App extends Component {
 
     if (prevState.page !== this.state.page && this.state.page !== 1) {
       this.fetchData(query, page);
-    } // realization loadMore
+    } // realization loadMore ///
 
     if (prevState.query !== this.state.query) {
       this.setState({ page: 1, images: [] });
