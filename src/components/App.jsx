@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Notiflix from 'notiflix';
 
@@ -12,34 +12,46 @@ axios.defaults.baseURL = 'https://pixabay.com/api/';
 
 const API_KEY = '16135792-2d496ba8b681987b91053eb75';
 
-export class App extends Component {
-  state = {
-    query: '',
-    images: [],
-    page: 1,
-    visible_images: 12,
-    srcLargeImg: '',
-    isLoading: false,
-    isModalOpen: false,
-  };
+export function App() {
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [visible_images, setVisible_images] = useState(12);
+  const [srcLargeImg, setSrcLargeImg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
+  const prevPageRef = useRef(1);
 
-    if (prevState.page !== this.state.page && this.state.page !== 1) {
-      this.fetchData(query, page);
-    } // realization loadMore ///
-
-    if (prevState.query !== this.state.query) {
-      this.setState({ page: 1, images: [] });
+  useEffect(() => {
+    if (prevPageRef.current === page) {
+      return;
     }
-  }
+    fetchData(query, page);
+  }, [page, query]);
 
-  fetchData = async (query, page = 1) => {
-    this.setState({ isLoading: true });
+  useEffect(() => {
+    setPage(1);
+    setImages([]);
+  }, [query]);
+
+  // componentDidUpdate(_, prevState) {
+  //   const { query, page } = this.state;
+
+  //   if (prevState.page !== this.state.page && this.state.page !== 1) {
+  //     this.fetchData(query, page);
+  //   } // realization loadMore ///
+
+  //   if (prevState.query !== this.state.query) {
+  //     this.setState({ page: 1, images: [] });
+  //   }
+  // }
+
+  const fetchData = async (query, page = 1) => {
+    setIsLoading(true);
 
     if (query === '') {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
       Notiflix.Notify.warning(
         'Too much results were found. Try to be more specific'
       );
@@ -62,54 +74,51 @@ export class App extends Component {
         }
       );
 
-      this.setState(prevState => ({
-        images: [...prevState.images, ...data],
-      }));
+      setImages(prevState => {
+        return [...prevState, ...data];
+      });
     } catch (error) {
       console.log(error);
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   };
 
-  handleSubmitInForm = query => {
-    this.fetchData(query);
+  const handleSubmitInForm = query => {
+    fetchData(query);
 
-    this.setState({ query, page: 1, visible_images: 12, images: [] }); // derive this.state.query from Searchbar and put it into state of App Component
+    setQuery(query);
+    setPage(1);
+    setVisible_images(12);
+    setImages([]);
+
+    // this.setState({ query, page: 1, visible_images: 12, images: [] }); // derive this.state.query from Searchbar and put it into state of App Component
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-      visible_images: prevState.visible_images + 12,
-    }));
+  const handleLoadMore = () => {
+    setPage(prevState => prevState + 1);
+    setVisible_images(prevState => prevState + 12);
   };
 
-  handleOpenModal = src => {
-    this.setState({ srcLargeImg: src, isModalOpen: true });
+  const handleOpenModal = src => {
+    setSrcLargeImg(src);
+    setIsModalOpen(true);
   };
 
-  handleCloseModal = () => {
-    this.setState({ srcLargeImg: '', isModalOpen: false });
+  const handleCloseModal = () => {
+    setSrcLargeImg('');
+    setIsModalOpen(false);
   };
 
-  render() {
-    const { images, srcLargeImg, visible_images, isLoading, isModalOpen } =
-      this.state;
-    return (
-      <>
-        <Searchbar onSubmit={this.handleSubmitInForm} />
-        <ImageGallery images={images} onClick={this.handleOpenModal} />
-        {isLoading && <Loader />}
-        {images.length !== 0 &&
-        !isLoading &&
-        visible_images <= images.length ? (
-          <Button onClick={this.handleLoadMore} />
-        ) : null}
-        {isModalOpen && (
-          <Modal src={srcLargeImg} onClose={this.handleCloseModal} />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      <Searchbar onSubmit={handleSubmitInForm} />
+      <ImageGallery images={images} onClick={handleOpenModal} />
+      {isLoading && <Loader />}
+      {images.length !== 0 && !isLoading && visible_images <= images.length ? (
+        <Button onClick={handleLoadMore} />
+      ) : null}
+      {isModalOpen && <Modal src={srcLargeImg} onClose={handleCloseModal} />}
+    </>
+  );
 }
